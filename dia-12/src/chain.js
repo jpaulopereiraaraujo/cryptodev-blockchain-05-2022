@@ -1,11 +1,16 @@
 const Block = require('./block')
+const utils = require('./utils')
 
 
 class Chain {
 
 
   constructor() {
-    this.instance = [new Block({index: 0, previousHash: 0, data: 'Genesis Block'})]
+
+    const genesis = new Block({index: 0, previousHash: 0, data: 'Genesis Block'})
+    genesis.mine(1)
+
+    this.instance = [genesis]
     this.index = 1
   }
 
@@ -14,7 +19,7 @@ class Chain {
     const previousHash = this.instance[this.index - 1].hash
 
     const block = new Block({index, previousHash, data})
-    const mined = block.mine(1)
+    const mined = block.mine(1) //TODO: Opcional de como alterar esse valor em tempo de execução da aplicação
 
     if(mined){
       this.index++
@@ -24,7 +29,7 @@ class Chain {
   }
 
   print() {
-    console.log(this.instance)
+    console.log(JSON.stringify(this.instance))
   }
 
   isValid() {
@@ -34,11 +39,11 @@ class Chain {
       const currentBlock = this.instance[i] // Bloco 1
       const previousBlock = this.instance[i - 1] // Bloco 0
 
-      const reGeneratedHash = currentBlock.generateHash(
+      const reGeneratedHash = utils.hashGenerator(
         currentBlock.index, 
-        currentBlock.previousBlock, 
+        currentBlock.previousHash, 
         currentBlock.timestamp,
-        currentBlock.data,
+        JSON.stringify(currentBlock.data),
         currentBlock.nounce
       )
 
